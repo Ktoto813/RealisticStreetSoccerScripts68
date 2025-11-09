@@ -1,29 +1,32 @@
+-- Auto Goalkeeper RSS (реалистичный)
+local GK = workspace:WaitForChild("Goalkeeper")
+local Ball = workspace:WaitForChild("Ball")
 
-local GK = workspace:WaitForChild("Goalkeeper")  -- вратарь
-local Ball = workspace:WaitForChild("Ball")      -- мяч
-
+-- Проверка Humanoid
 local Humanoid = GK:FindFirstChildOfClass("Humanoid")
 if not Humanoid then
     Humanoid = Instance.new("Humanoid")
     Humanoid.Parent = GK
 end
 
-local REACTION_TIME = 0.1   -- задержка реакции в секундах
-local MOVE_SPEED = 0.5      -- скорость движения вратаря
-local JUMP_OFFSET = 2       -- насколько выше мяча прыгать
-local DETECT_RANGE = 50     -- расстояние, на котором вратарь реагирует на мяч
+-- Настройки
+local REACTION = 0.05        -- скорость реакции
+local SPEED = 0.7            -- скорость движения вратаря
+local JUMP_OFFSET = 1.5      -- как выше мяча прыгать
+local RANGE = 50             -- радиус реакции
 
+-- Основной цикл
 while true do
-    task.wait(REACTION_TIME)
-    local direction = Ball.Position - GK.Position
-    local distance = direction.Magnitude
+    task.wait(REACTION)
+    local dir = Ball.Position - GK.Position
+    local horizontalDir = Vector3.new(dir.X, 0, dir.Z)
+    local distance = horizontalDir.Magnitude
 
-    if distance < DETECT_RANGE then
-        -- Движение в горизонтальной плоскости
-        local moveDir = Vector3.new(direction.X, 0, direction.Z).Unit
-        GK.Position = GK.Position + moveDir * MOVE_SPEED
+    if distance < RANGE then
+        -- Движение к мячу
+        GK.Position = GK.Position + horizontalDir.Unit * SPEED
 
-      
+        -- Прыжок, если мяч выше вратаря
         if Ball.Position.Y > GK.Position.Y + JUMP_OFFSET then
             Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
         end
